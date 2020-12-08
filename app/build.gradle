@@ -29,6 +29,7 @@ android {
 }
 
 dependencies {
+    def lifecycle_version = "2.2.0"
 
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
@@ -37,6 +38,11 @@ dependencies {
     // Sdp
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    // ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"
+    // LiveData
+    implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
