@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="@dimen/_3sdp"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="#111"
+    android:foreground="?attr/selectableItemBackground"
+    tools:ignore="UnusedAttribute">
+
+
+    <ImageView
+        android:id="@+id/song_cover_img"
+        android:layout_width="@dimen/_50sdp"
+        android:layout_height="@dimen/_50sdp" />
+
+    <TextView
+        android:id="@+id/title_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/song_cover_img"
+        android:textSize="18sp"
+        android:textColor="@color/white"
+        android:layout_margin="@dimen/_4sdp"
+        android:text="Avicii" />
+
+    <TextView
+        android:id="@+id/artist_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_tv"
+        android:layout_toEndOf="@id/song_cover_img"
+        android:layout_marginStart="@dimen/_3sdp"
+        android:text="Wake Me Up"
+        android:textColor="@android:color/darker_gray"/>
+
+    <TextView
+        android:id="@+id/duration_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title_tv"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="@dimen/_3sdp"
+        android:layout_marginEnd="@dimen/_3sdp"
+        android:textColor="@android:color/darker_gray"
+        android:text="4:50"/>
+
+</RelativeLayout>
