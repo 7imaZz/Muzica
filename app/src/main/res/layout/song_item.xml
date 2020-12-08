@@ -15,7 +15,8 @@
     <ImageView
         android:id="@+id/song_cover_img"
         android:layout_width="@dimen/_50sdp"
-        android:layout_height="@dimen/_50sdp" />
+        android:layout_height="@dimen/_50sdp"
+        android:scaleType="centerCrop"/>
 
     <TextView
         android:id="@+id/title_tv"

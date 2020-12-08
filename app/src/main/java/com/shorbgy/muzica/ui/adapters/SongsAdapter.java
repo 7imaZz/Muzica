@@ -1,6 +1,7 @@
 package com.shorbgy.muzica.ui.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.media.MediaMetadataRetriever;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
 import com.shorbgy.muzica.ui.activities.MainActivity;
+import com.shorbgy.muzica.ui.activities.PlayerActivity;
 
 import java.util.ArrayList;
 
@@ -57,6 +59,11 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongsViewHol
         holder.artistTextView.setText(songs.get(position).getArtist());
         holder.durationTextView.setText(songs.get(position).getDuration());
 
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, PlayerActivity.class);
+            context.startActivity(intent);
+        });
+
         new Thread(() -> {
 
             byte[] songCover = getSongCover(songs.get(position).getPath());
@@ -66,7 +73,6 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongsViewHol
                     .placeholder(R.drawable.place_holder)
                     .into(holder.songCoverImageView));
         }).start();
-
     }
 
     @Override
