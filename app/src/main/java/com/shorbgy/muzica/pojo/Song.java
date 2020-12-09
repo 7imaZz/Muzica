@@ -5,13 +5,15 @@ import android.os.Parcelable;
 
 public class Song implements Parcelable{
 
+    private String id;
     private String path;
     private String title;
     private String artist;
     private String album;
     private String duration;
 
-    public Song(String path, String title, String artist, String album, String duration) {
+    public Song(String id, String path, String title, String artist, String album, String duration) {
+        this.id = id;
         this.path = path;
         this.title = title;
         this.artist = artist;
@@ -20,6 +22,7 @@ public class Song implements Parcelable{
     }
 
     protected Song(Parcel in) {
+        id = in.readString();
         path = in.readString();
         title = in.readString();
         artist = in.readString();
@@ -38,6 +41,14 @@ public class Song implements Parcelable{
             return new Song[size];
         }
     };
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getPath() {
         return path;
@@ -86,6 +97,7 @@ public class Song implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
         dest.writeString(path);
         dest.writeString(title);
         dest.writeString(artist);

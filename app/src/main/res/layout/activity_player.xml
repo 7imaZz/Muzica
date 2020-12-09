@@ -12,7 +12,7 @@
         android:id="@+id/top"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_35sdp"
-        android:background="#111">
+        android:background="@android:color/transparent">
 
         <ImageView
             android:id="@+id/back_img"
@@ -60,9 +60,9 @@
             android:contentDescription="@string/song_cover_image"/>
 
         <ImageView
+            android:id="@+id/gradient_img"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_200sdp"
-            android:background="@drawable/gradient_bg"
             android:layout_alignParentBottom="true"
             tools:ignore="ContentDescription" />
 
@@ -154,7 +154,10 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/_20sdp"
-            tools:ignore="ContentDescription" />
+            tools:ignore="ContentDescription"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"/>
 
 
         <ImageView
@@ -167,7 +170,8 @@
             tools:ignore="ContentDescription"
             android:layout_marginEnd="@dimen/_12sdp"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/play_pause_fab"
@@ -183,15 +187,16 @@
 
         <ImageView
             android:id="@+id/next_img"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="17dp"
-            android:layout_toEndOf="@id/play_pause_fab"
+            android:layout_width="@dimen/_20sdp"
+            android:layout_height="@dimen/_20sdp"
             android:src="@drawable/ic_baseline_skip_next_24"
+            android:layout_toEndOf="@id/play_pause_fab"
+            android:layout_centerVertical="true"
             tools:ignore="ContentDescription"
+            android:layout_marginStart="@dimen/_12sdp"
             android:clickable="true"
-            android:focusable="true"/>
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"/>
 
         <ImageView
             android:id="@+id/repeat_img"
@@ -201,7 +206,10 @@
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_marginEnd="@dimen/_20sdp"
-            tools:ignore="ContentDescription" />
+            tools:ignore="ContentDescription"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?android:attr/selectableItemBackground"/>
 
     </RelativeLayout>
 

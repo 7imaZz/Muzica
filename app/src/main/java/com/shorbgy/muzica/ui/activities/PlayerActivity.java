@@ -1,15 +1,23 @@
 package com.shorbgy.muzica.ui.activities;
-
 import androidx.appcompat.app.AppCompatActivity;
-
+import androidx.palette.graphics.Palette;
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
@@ -18,12 +26,18 @@ import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 @SuppressLint("NonConstantResourceId")
 public class PlayerActivity extends AppCompatActivity {
+
+    public static final String MY_PREFS_NAME = "MyPrefsFile";
+    public static final String SHUFFLE = "shuffle";
+    public static final String REPEAT = "repeat";
+
 
     @BindView(R.id.back_img) ImageView backImageView;
     @BindView(R.id.menu_img) ImageView menuImageView;
@@ -46,11 +60,25 @@ public class PlayerActivity extends AppCompatActivity {
     private ArrayList<Song> songs = new ArrayList<>();
     private int pos = -1;
 
+    private boolean isShuffleOn = false;
+    private boolean isRepeatOn = false;
+
+    private SharedPreferences.Editor editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
+
         ButterKnife.bind(this);
+
+        editor = getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE).edit();
+        SharedPreferences preferences = getSharedPreferences(MY_PREFS_NAME, Context.MODE_PRIVATE);
+
+        isRepeatOn = preferences.getBoolean(REPEAT, false);
+        isShuffleOn = preferences.getBoolean(SHUFFLE, false);
+
+        checkShuffle();
+        checkRepeat();
 
         songs = getIntent().getParcelableArrayListExtra("songs");
         pos = getIntent().getIntExtra("pos", -1);
@@ -63,6 +91,18 @@ public class PlayerActivity extends AppCompatActivity {
         playPauseFab.setOnClickListener(v -> playPause());
         nextSongImageView.setOnClickListener(v -> playNextSong());
         previousSongImageView.setOnClickListener(v -> playPreviousSong());
+        shuffleImageView.setOnClickListener(v -> {
+            isShuffleOn = !isShuffleOn;
+            editor.putBoolean(SHUFFLE, isShuffleOn);
+            checkShuffle();
+            editor.apply();
+        });
+        repeatImageView.setOnClickListener(v -> {
+            isRepeatOn = !isRepeatOn;
+            editor.putBoolean(REPEAT, isRepeatOn);
+            checkRepeat();
+            editor.apply();
+        });
     }
 
     private void setupSongsInfo(){
@@ -95,10 +135,65 @@ public class PlayerActivity extends AppCompatActivity {
     private void setupCoverImage(){
         new Thread(() -> {
             byte[] songCover = getSongCover(currentSong.getPath());
-            runOnUiThread(() -> Glide.with(PlayerActivity.this).asBitmap()
-                    .load(songCover)
-                    .placeholder(R.mipmap.place_holder)
-                    .into(songCoverImageView));
+
+            Bitmap bitmap;
+
+            if (songCover != null){
+                bitmap = BitmapFactory.decodeByteArray(songCover, 0, songCover.length);
+            }else {
+                bitmap = null;
+            }
+
+            runOnUiThread(() -> {
+                if (bitmap != null){
+
+                    animateImage(songCoverImageView, bitmap);
+
+                    Palette.from(bitmap).generate(palette -> {
+                        assert palette != null;
+                        Palette.Swatch swatch = palette.getDominantSwatch();
+                        ImageView gradient = findViewById(R.id.gradient_img);
+                        RelativeLayout containerLayout = findViewById(R.id.player_container);
+                        gradient.setBackgroundResource(R.drawable.gradient_bg);
+                        containerLayout.setBackgroundResource(R.drawable.main_bg);
+                        GradientDrawable gradientDrawable;
+                        if(swatch != null){
+
+                            gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP,
+                                    new int[]{swatch.getRgb(), 0x00000000});
+                            gradient.setBackground(gradientDrawable);
+
+                            GradientDrawable gradientDrawableBg =
+                                    new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP,
+                                            new int[]{swatch.getRgb(), swatch.getRgb()});
+                            containerLayout.setBackground(gradientDrawableBg);
+
+                        }else {
+
+                            gradientDrawable = new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP,
+                                    new int[]{0xff000000, 0x00000000});
+                            gradient.setBackground(gradientDrawable);
+
+                            GradientDrawable gradientDrawableBg =
+                                    new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP,
+                                            new int[]{0xff000000, 0xff000000});
+                            containerLayout.setBackground(gradientDrawableBg);
+
+                        }
+                        songTitleTextView.setTextColor(Color.WHITE);
+                        artistTextView.setTextColor(Color.WHITE);
+                    });
+                }else {
+                    animateImage(songCoverImageView, null);
+                    ImageView gradient = findViewById(R.id.gradient_img);
+                    RelativeLayout containerLayout = findViewById(R.id.player_container);
+                    gradient.setBackgroundResource(R.drawable.gradient_bg);
+                    containerLayout.setBackgroundResource(R.drawable.main_bg);
+                    songTitleTextView.setTextColor(Color.WHITE);
+                    artistTextView.setTextColor(Color.WHITE);
+                }
+            });
+
         }).start();
     }
 
@@ -148,10 +243,16 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void playNextSong(){
-        if (pos==songs.size()-1){
-            pos = 0;
-        }else {
-            pos++;
+        if (!isRepeatOn) {
+            if (!isShuffleOn) {
+                if (pos == songs.size() - 1) {
+                    pos = 0;
+                } else {
+                    pos++;
+                }
+            }else {
+                pos = new Random().nextInt(songs.size()-1);
+            }
         }
         currentSong = songs.get(pos);
         setupCoverImage();
@@ -160,15 +261,74 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void playPreviousSong(){
-        if (pos==0){
-            pos = songs.size()-1;
-        }else {
-            pos--;
+        if (!isRepeatOn) {
+            if (!isShuffleOn) {
+                if (pos == 0) {
+                    pos = songs.size()-1;
+                } else {
+                    pos--;
+                }
+            }else {
+                pos = new Random().nextInt(songs.size()-1);
+            }
         }
         currentSong = songs.get(pos);
         setupCoverImage();
         setupSongsInfo();
         setupSongsInfo();
+    }
+
+    private void animateImage(ImageView imageView, Bitmap bitmap){
+
+        Animation animOut = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
+        Animation animIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+
+        animOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                if (bitmap != null) {
+                    Glide.with(PlayerActivity.this)
+                            .load(bitmap)
+                            .into(imageView);
+                }else {
+                    Glide.with(PlayerActivity.this)
+                            .load(R.mipmap.place_holder)
+                            .into(imageView);
+                }
+
+                animIn.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+
+                imageView.startAnimation(animIn);
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        imageView.startAnimation(animOut);
     }
 
     private byte[] getSongCover(String uri){
@@ -193,6 +353,22 @@ public class PlayerActivity extends AppCompatActivity {
             return totalNew;
         }else {
             return totalOut;
+        }
+    }
+
+    private void checkShuffle(){
+        if (isShuffleOn) {
+            shuffleImageView.setImageResource(R.drawable.ic_shuffle);
+        }else {
+            shuffleImageView.setImageResource(R.drawable.ic_shuffle_off);
+        }
+    }
+
+    private void checkRepeat(){
+        if (isRepeatOn){
+            repeatImageView.setImageResource(R.drawable.ic_repeat);
+        }else {
+            repeatImageView.setImageResource(R.drawable.ic_repeat_off);
         }
     }
 }

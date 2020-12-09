@@ -25,12 +25,9 @@ public class MusicViewModel extends ViewModel{
     ArrayList<Song> songs = new ArrayList<>();
 
     public void getAllSongs(Context context){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                songs = getSongsFromStorage(context);
-                songMutableLiveData.postValue(songs);
-            }
+        new Thread(() -> {
+            songs = getSongsFromStorage(context);
+            songMutableLiveData.postValue(songs);
         }).start();
     }
 
@@ -48,6 +45,7 @@ public class MusicViewModel extends ViewModel{
                     MediaStore.Audio.Media.ARTIST,
                     MediaStore.Audio.Media.DURATION,
                     MediaStore.Audio.Media.ALBUM,
+                    MediaStore.Audio.Media._ID
             };
         }else {
             projection = new String[]{
@@ -56,6 +54,8 @@ public class MusicViewModel extends ViewModel{
                     MediaStore.Audio.Media.ARTIST,
                     DURATION,
                     MediaStore.Audio.Media.ALBUM,
+                    MediaStore.Audio.Media._ID
+
             };
         }
 
@@ -69,9 +69,10 @@ public class MusicViewModel extends ViewModel{
                 String artist = cursor.getString(2);
                 String duration = cursor.getString(3);
                 String album = cursor.getString(4);
+                String id = cursor.getString(5);
 
                 Log.d(TAG, "getAllSongs: "+title+", Thread: "+Thread.currentThread().getName());
-                songs.add(new Song(path, title, artist, album, duration));
+                songs.add(new Song(id, path, title, artist, album, duration));
             }
             cursor.close();
         }
