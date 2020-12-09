@@ -169,7 +169,7 @@ public abstract class SwipeHelper extends ItemTouchHelper.SimpleCallback {
 
     private synchronized void recoverSwipedItem(){
         while (!recoverQueue.isEmpty()){
-            
+
             int pos = recoverQueue.poll();
             if (pos > -1) {
                 Objects.requireNonNull(recyclerView.getAdapter()).notifyItemChanged(pos);
