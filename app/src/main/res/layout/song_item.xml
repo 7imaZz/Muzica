@@ -16,7 +16,8 @@
         android:id="@+id/song_cover_img"
         android:layout_width="@dimen/_50sdp"
         android:layout_height="@dimen/_50sdp"
-        android:scaleType="centerCrop"/>
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/song_cover" />
 
     <TextView
         android:id="@+id/title_tv"
@@ -26,7 +27,7 @@
         android:textSize="18sp"
         android:textColor="@color/white"
         android:layout_margin="@dimen/_4sdp"
-        android:text="Avicii" />
+        android:singleLine="true"/>
 
     <TextView
         android:id="@+id/artist_tv"
@@ -35,7 +36,6 @@
         android:layout_below="@id/title_tv"
         android:layout_toEndOf="@id/song_cover_img"
         android:layout_marginStart="@dimen/_3sdp"
-        android:text="Wake Me Up"
         android:textColor="@android:color/darker_gray"/>
 
     <TextView
@@ -46,7 +46,6 @@
         android:layout_alignParentEnd="true"
         android:layout_marginStart="@dimen/_3sdp"
         android:layout_marginEnd="@dimen/_3sdp"
-        android:textColor="@android:color/darker_gray"
-        android:text="4:50"/>
+        android:textColor="@android:color/darker_gray" />
 
 </RelativeLayout>

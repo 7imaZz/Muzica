@@ -1,5 +1,6 @@
 package com.shorbgy.muzica.ui.fragments;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,11 +21,18 @@ import com.shorbgy.muzica.viewmodels.MusicViewModel;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+@SuppressLint("NonConstantResourceId")
 public class SongFragment extends Fragment {
 
     private SongsAdapter adapter;
 
     private ArrayList<Song> mySongs = new ArrayList<>();
+
+    @BindView(R.id.songs_rv) RecyclerView songsRecyclerView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -36,7 +44,8 @@ public class SongFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        RecyclerView songsRecyclerView = view.findViewById(R.id.songs_rv);
+        ButterKnife.bind(this, view);
+
         songsRecyclerView.setHasFixedSize(true);
         songsRecyclerView.addItemDecoration(new DividerItemDecoration(requireContext(),
                 DividerItemDecoration.VERTICAL));

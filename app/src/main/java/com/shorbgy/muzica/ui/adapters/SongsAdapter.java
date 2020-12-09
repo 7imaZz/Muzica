@@ -1,7 +1,10 @@
 package com.shorbgy.muzica.ui.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +14,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.bumptech.glide.Glide;
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
 import com.shorbgy.muzica.ui.activities.MainActivity;
@@ -20,17 +21,21 @@ import com.shorbgy.muzica.ui.activities.PlayerActivity;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongsViewHolder>{
 
+    @SuppressLint("NonConstantResourceId")
     public static class SongsViewHolder extends RecyclerView.ViewHolder{
-        ImageView songCoverImageView;
-        TextView titleTextView, artistTextView, durationTextView;
+
+        @BindView(R.id.song_cover_img) ImageView songCoverImageView;
+        @BindView(R.id.title_tv) TextView titleTextView;
+        @BindView(R.id.artist_tv) TextView artistTextView;
+        @BindView(R.id.duration_tv) TextView durationTextView;
         public SongsViewHolder(@NonNull View itemView) {
             super(itemView);
-            songCoverImageView = itemView.findViewById(R.id.song_cover_img);
-            titleTextView = itemView.findViewById(R.id.title_tv);
-            artistTextView = itemView.findViewById(R.id.artist_tv);
-            durationTextView = itemView.findViewById(R.id.duration_tv);
+            ButterKnife.bind(this, itemView);
         }
     }
 
@@ -56,22 +61,32 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongsViewHol
     @Override
     public void onBindViewHolder(@NonNull SongsViewHolder holder, int position) {
         holder.titleTextView.setText(songs.get(position).getTitle());
+        if (songs.get(position).getArtist().equals("<unknown>")){
+            songs.get(position).setArtist("Unknown");
+        }
         holder.artistTextView.setText(songs.get(position).getArtist());
-        holder.durationTextView.setText(songs.get(position).getDuration());
+        holder.durationTextView.setText(formattedDuration(
+                Integer.parseInt(songs.get(position).getDuration())/1000));
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, PlayerActivity.class);
+            intent.putExtra("songs", songs);
+            intent.putExtra("pos", position);
             context.startActivity(intent);
         });
 
         new Thread(() -> {
 
-            byte[] songCover = getSongCover(songs.get(position).getPath());
+            Bitmap songCover = getSongCover(songs.get(position).getPath());
 
-            ((MainActivity)context).runOnUiThread(() -> Glide.with(context).asBitmap()
-                    .load(songCover)
-                    .placeholder(R.drawable.place_holder)
-                    .into(holder.songCoverImageView));
+            if (songCover != null){
+                ((MainActivity)context).runOnUiThread(() ->
+                        holder.songCoverImageView.setImageBitmap(songCover));
+            }else {
+                ((MainActivity)context).runOnUiThread(() ->
+                        holder.songCoverImageView.setImageResource(R.mipmap.place_holder));
+            }
+
         }).start();
     }
 
@@ -80,12 +95,33 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongsViewHol
         return songs.size();
     }
 
-    private byte[] getSongCover(String uri){
+    private Bitmap getSongCover(String uri){
 
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(uri);
         byte[] songCover = retriever.getEmbeddedPicture();
         retriever.release();
-        return songCover;
+        if(songCover != null){
+            return BitmapFactory.decodeByteArray(songCover, 0, songCover.length);
+        }else {
+            return null;
+        }
+    }
+
+    private String formattedDuration(long millis){
+        String totalOut;
+        String totalNew;
+
+        String seconds = String.valueOf(millis%60);
+        String minutes = String.valueOf(millis/60);
+
+        totalOut = minutes+":"+seconds;
+        totalNew = minutes+":"+"0"+seconds;
+
+        if (seconds.length()==1){
+            return totalNew;
+        }else {
+            return totalOut;
+        }
     }
 }

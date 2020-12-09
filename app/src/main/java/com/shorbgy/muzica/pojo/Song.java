@@ -1,6 +1,9 @@
 package com.shorbgy.muzica.pojo;
 
-public class Song {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Song implements Parcelable{
 
     private String path;
     private String title;
@@ -15,6 +18,26 @@ public class Song {
         this.album = album;
         this.duration = duration;
     }
+
+    protected Song(Parcel in) {
+        path = in.readString();
+        title = in.readString();
+        artist = in.readString();
+        album = in.readString();
+        duration = in.readString();
+    }
+
+    public static final Creator<Song> CREATOR = new Creator<Song>() {
+        @Override
+        public Song createFromParcel(Parcel in) {
+            return new Song(in);
+        }
+
+        @Override
+        public Song[] newArray(int size) {
+            return new Song[size];
+        }
+    };
 
     public String getPath() {
         return path;
@@ -54,5 +77,19 @@ public class Song {
 
     public void setDuration(String duration) {
         this.duration = duration;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(path);
+        dest.writeString(title);
+        dest.writeString(artist);
+        dest.writeString(album);
+        dest.writeString(duration);
     }
 }
