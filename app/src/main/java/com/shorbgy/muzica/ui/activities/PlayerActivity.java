@@ -26,6 +26,7 @@ import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 
 import butterknife.BindView;
@@ -68,6 +69,8 @@ public class PlayerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
+
+        Objects.requireNonNull(getSupportActionBar()).hide();
 
         ButterKnife.bind(this);
 

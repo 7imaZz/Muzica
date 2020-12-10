@@ -2,12 +2,15 @@ package com.shorbgy.muzica.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -17,9 +20,12 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
+
 import com.google.android.material.snackbar.Snackbar;
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
+import com.shorbgy.muzica.ui.activities.MainActivity;
 import com.shorbgy.muzica.ui.adapters.SongsAdapter;
 import com.shorbgy.muzica.ui.utils.SwipeHelper;
 import com.shorbgy.muzica.viewmodels.MusicViewModel;
@@ -27,6 +33,7 @@ import com.shorbgy.muzica.viewmodels.MusicViewModel;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,15 +41,19 @@ import butterknife.ButterKnife;
 @SuppressLint("NonConstantResourceId")
 public class SongFragment extends Fragment {
 
-    private SongsAdapter adapter;
+    public static SongsAdapter adapter;
 
-    private ArrayList<Song> mySongs = new ArrayList<>();
+    public static ArrayList<Song> mySongs = new ArrayList<>();
+
+    String sortOrder;
 
     @BindView(R.id.songs_rv) RecyclerView songsRecyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        sortOrder = ((MainActivity) requireActivity()).getSortOrder();
 
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_song, container, false);
@@ -60,7 +71,7 @@ public class SongFragment extends Fragment {
         songsRecyclerView.setAdapter(adapter);
 
         MusicViewModel musicViewModel = new ViewModelProvider(requireActivity()).get(MusicViewModel.class);
-        musicViewModel.getAllSongs(requireContext());
+        musicViewModel.getAllSongs(requireContext(), sortOrder);
 
 
         musicViewModel.songMutableLiveData.observe(requireActivity(), songs -> {
@@ -99,5 +110,12 @@ public class SongFragment extends Fragment {
         }else {
             Snackbar.make(requireView(), "Song Can't Be Deleted", Snackbar.LENGTH_LONG);
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Objects.requireNonNull(((AppCompatActivity)
+                Objects.requireNonNull(getActivity())).getSupportActionBar()).show();
     }
 }

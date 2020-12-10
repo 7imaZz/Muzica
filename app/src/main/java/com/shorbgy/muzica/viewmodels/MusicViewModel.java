@@ -24,16 +24,32 @@ public class MusicViewModel extends ViewModel{
 
     ArrayList<Song> songs = new ArrayList<>();
 
-    public void getAllSongs(Context context){
+    public void getAllSongs(Context context, String sortOrder){
         new Thread(() -> {
-            songs = getSongsFromStorage(context);
+            songs = getSongsFromStorage(context, sortOrder);
             songMutableLiveData.postValue(songs);
         }).start();
     }
 
-    private ArrayList<Song> getSongsFromStorage(Context context){
+    private ArrayList<Song> getSongsFromStorage(Context context, String sortOrder){
 
         ArrayList<Song> songs = new ArrayList<>();
+
+        String sort = null;
+
+        if (sortOrder!=null) {
+            switch (sortOrder) {
+                case "byName":
+                    sort = MediaStore.MediaColumns.DISPLAY_NAME + " ASC";
+                    break;
+                case "bySize":
+                    sort = MediaStore.MediaColumns.SIZE + " DESC";
+                    break;
+                case "byDate":
+                    sort = MediaStore.MediaColumns.DATE_ADDED + " ASC";
+                    break;
+            }
+        }
 
         Uri mediaUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection;
@@ -60,7 +76,7 @@ public class MusicViewModel extends ViewModel{
         }
 
         Cursor cursor = context.getContentResolver().query(mediaUri, projection,
-                null, null, null);
+                null, null, sort);
 
         if (cursor!=null){
             while (cursor.moveToNext()){

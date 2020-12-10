@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
 import com.shorbgy.muzica.ui.activities.MainActivity;
@@ -82,10 +84,15 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongsViewHol
 
             if (songCover != null){
                 ((Activity)context).runOnUiThread(() ->
-                        holder.songCoverImageView.setImageBitmap(songCover));
+                        Glide.with(context)
+                                .load(songCover)
+                                .placeholder(R.mipmap.place_holder)
+                                .into(holder.songCoverImageView));
             }else {
                 ((Activity)context).runOnUiThread(() ->
-                        holder.songCoverImageView.setImageResource(R.mipmap.place_holder));
+                        Glide.with(context)
+                                .load(R.mipmap.place_holder)
+                                .into(holder.songCoverImageView));
             }
 
         }).start();

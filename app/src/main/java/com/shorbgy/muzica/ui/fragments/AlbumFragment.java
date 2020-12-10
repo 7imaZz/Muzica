@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,10 +16,12 @@ import android.view.ViewGroup;
 
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
+import com.shorbgy.muzica.ui.activities.MainActivity;
 import com.shorbgy.muzica.ui.adapters.AlbumAdapter;
 import com.shorbgy.muzica.viewmodels.MusicViewModel;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -34,9 +37,14 @@ public class AlbumFragment extends Fragment {
     ArrayList<String> existAlbums = new ArrayList<>();
     ArrayList<Song> albums = new ArrayList<>();
 
+    String sortOrder;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        sortOrder = ((MainActivity) requireActivity()).getSortOrder();
+
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_album, container, false);
     }
@@ -52,7 +60,7 @@ public class AlbumFragment extends Fragment {
         albumRecyclerView.setAdapter(adapter);
 
         MusicViewModel musicViewModel = new ViewModelProvider(requireActivity()).get(MusicViewModel.class);
-        musicViewModel.getAllSongs(requireContext());
+        musicViewModel.getAllSongs(requireContext(), sortOrder);
 
 
         musicViewModel.songMutableLiveData.observe(requireActivity(), songs -> {
@@ -69,5 +77,12 @@ public class AlbumFragment extends Fragment {
             adapter.setSongs(albums);
             adapter.notifyDataSetChanged();
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Objects.requireNonNull(((AppCompatActivity)
+                Objects.requireNonNull(getActivity())).getSupportActionBar()).hide();
     }
 }
