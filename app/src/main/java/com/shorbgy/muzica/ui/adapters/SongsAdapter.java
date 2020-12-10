@@ -1,6 +1,7 @@
 package com.shorbgy.muzica.ui.adapters;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -80,10 +81,10 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongsViewHol
             Bitmap songCover = getSongCover(songs.get(position).getPath());
 
             if (songCover != null){
-                ((MainActivity)context).runOnUiThread(() ->
+                ((Activity)context).runOnUiThread(() ->
                         holder.songCoverImageView.setImageBitmap(songCover));
             }else {
-                ((MainActivity)context).runOnUiThread(() ->
+                ((Activity)context).runOnUiThread(() ->
                         holder.songCoverImageView.setImageResource(R.mipmap.place_holder));
             }
 

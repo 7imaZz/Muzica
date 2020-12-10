@@ -62,6 +62,13 @@ public class SongFragment extends Fragment {
         MusicViewModel musicViewModel = new ViewModelProvider(requireActivity()).get(MusicViewModel.class);
         musicViewModel.getAllSongs(requireContext());
 
+
+        musicViewModel.songMutableLiveData.observe(requireActivity(), songs -> {
+            mySongs = songs;
+            adapter.setSongs(mySongs);
+            adapter.notifyDataSetChanged();
+        });
+
         SwipeHelper swipeHelper = new SwipeHelper(requireContext(), songsRecyclerView) {
             @Override
             public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
@@ -73,12 +80,6 @@ public class SongFragment extends Fragment {
             }
         };
 
-
-        musicViewModel.songMutableLiveData.observe(requireActivity(), songs -> {
-            mySongs = songs;
-            adapter.setSongs(mySongs);
-            adapter.notifyDataSetChanged();
-        });
     }
 
     private void deleteSong(int pos){

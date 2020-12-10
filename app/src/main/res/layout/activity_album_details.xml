@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".ui.activities.AlbumDetailsActivity"
+    android:background="@color/primary">
+
+    <RelativeLayout
+        android:id="@+id/card"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_320sdp">
+
+        <ImageView
+            android:id="@+id/song_cover_img_det"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@mipmap/place_holder"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/song_cover_image"/>
+
+        <ImageView
+            android:id="@+id/gradient_img"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_200sdp"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/gradient_bg"
+            tools:ignore="ContentDescription" />
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/songs_det_rv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/card"
+        tools:listitem="@layout/song_item"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+
+</RelativeLayout>

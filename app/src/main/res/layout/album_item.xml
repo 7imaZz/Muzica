@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/_140sdp"
+    android:layout_height="wrap_content"
+    xmlns:apps="http://schemas.android.com/tools"
+    app:cardCornerRadius="@dimen/_10sdp"
+    app:cardElevation="@dimen/_10sdp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="@color/primary"
+    android:layout_margin="@dimen/_6sdp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/primary">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/album_img"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_160sdp"
+                android:scaleType="centerCrop"
+                android:background="@android:color/transparent"
+                android:src="@mipmap/place_holder"
+                android:contentDescription="@string/album_cover" />
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/album_title_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:layout_marginBottom="@dimen/_2sdp"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textColor="#FFF"
+            apps:text="test"
+            android:maxLines="1"/>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

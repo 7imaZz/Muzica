@@ -18,9 +18,9 @@ public class MyFragmentStateAdapter extends FragmentStateAdapter{
     @Override
     public Fragment createFragment(int position) {
         if (position == 1) {
-            return new AlbumFragment();
+            return new SongFragment();
         }
-        return new SongFragment();
+        return new AlbumFragment();
     }
 
     @Override
@@ -30,8 +30,8 @@ public class MyFragmentStateAdapter extends FragmentStateAdapter{
 
     public String getPageTitle(int pos){
         if (pos == 1){
-            return "Album";
+            return "Songs";
         }
-        return "Song";
+        return "Albums";
     }
 }

@@ -8,4 +8,5 @@
     <string name="this_is_artist_name">This Is Artist Name</string>
     <string name="this_is_song_title">This Is Song Title</string>
     <string name="song_cover">Song Cover</string>
+    <string name="album_cover">Album Cover</string>
 </resources>
