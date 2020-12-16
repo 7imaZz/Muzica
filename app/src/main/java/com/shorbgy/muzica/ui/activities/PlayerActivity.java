@@ -11,26 +11,26 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.icu.text.Normalizer2;
 import android.media.MediaMetadataRetriever;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.provider.CalendarContract;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
 import com.shorbgy.muzica.services.MusicService;
 import com.shorbgy.muzica.services.ServiceCallbacks;
-
+import com.shorbgy.muzica.ui.utils.OnSwipeTouchListener;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
@@ -40,24 +40,25 @@ import static com.shorbgy.muzica.MyApp.ACTION_NEXT;
 import static com.shorbgy.muzica.MyApp.ACTION_PLAY;
 import static com.shorbgy.muzica.MyApp.ACTION_PREVIOUS;
 
-@SuppressLint("NonConstantResourceId")
+@SuppressLint({"ClickableViewAccessibility", "NonConstantResourceId"})
 public class PlayerActivity extends AppCompatActivity implements ServiceConnection, ServiceCallbacks{
 
     public static final String MY_PREFS_NAME = "MyPrefsFile";
     public static final String SHUFFLE = "shuffle";
     public static final String REPEAT = "repeat";
 
+
     @BindView(R.id.song_cover_img_playing) ImageView songCoverImageView;
-    @BindView(R.id.shuffle_img) ImageView shuffleImageView;
-    @BindView(R.id.prev_img) ImageView previousSongImageView;
-    @BindView(R.id.next_img) ImageView nextSongImageView;
-    @BindView(R.id.repeat_img) ImageView repeatImageView;
+    @BindView(R.id.shuffle_img) FloatingActionButton shuffleImageView;
+    @BindView(R.id.prev_img) FloatingActionButton previousSongImageView;
+    @BindView(R.id.next_img) FloatingActionButton nextSongImageView;
+    @BindView(R.id.repeat_img) FloatingActionButton repeatImageView;
+    @BindView(R.id.play_pause_fab) FloatingActionButton playPauseFab;
     @BindView(R.id.song_title_tv) TextView songTitleTextView;
     @BindView(R.id.artist_name_tv) TextView artistTextView;
     @BindView(R.id.current_seek_tv) TextView currentDurationTextView;
     @BindView(R.id.duration_seek_tv) TextView endDurationTextView;
     @BindView(R.id.song_seek_bar) SeekBar songSeekBar;
-    @BindView(R.id.play_pause_fab) FloatingActionButton playPauseFab;
 
     private Song currentSong;
 
@@ -116,6 +117,20 @@ public class PlayerActivity extends AppCompatActivity implements ServiceConnecti
             editor.apply();
         });
 
+
+        songCoverImageView.setOnTouchListener(new OnSwipeTouchListener(PlayerActivity.this){
+            @Override
+            public void onSwipeRight() {
+                super.onSwipeRight();
+                playPreviousSong();
+            }
+
+            @Override
+            public void onSwipeLeft() {
+                super.onSwipeLeft();
+                playNextSong();
+            }
+        });
 
     }
 
@@ -382,17 +397,17 @@ public class PlayerActivity extends AppCompatActivity implements ServiceConnecti
 
     private void checkShuffle(){
         if (isShuffleOn) {
-            shuffleImageView.setImageResource(R.drawable.ic_shuffle);
+            shuffleImageView.setColorFilter(getResources().getColor(android.R.color.holo_blue_dark));
         }else {
-            shuffleImageView.setImageResource(R.drawable.ic_shuffle_off);
+            shuffleImageView.setColorFilter(Color.WHITE);
         }
     }
 
     private void checkRepeat(){
         if (isRepeatOn){
-            repeatImageView.setImageResource(R.drawable.ic_repeat);
+            repeatImageView.setColorFilter(getResources().getColor(android.R.color.holo_blue_dark));
         }else {
-            repeatImageView.setImageResource(R.drawable.ic_repeat_off);
+            repeatImageView.setColorFilter(Color.WHITE);
         }
     }
 

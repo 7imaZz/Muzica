@@ -19,11 +19,14 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
+import com.shorbgy.muzica.MyApp;
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.notification.NotificationReceiver;
 import com.shorbgy.muzica.pojo.Song;
 import com.shorbgy.muzica.ui.activities.MainActivity;
 import com.shorbgy.muzica.ui.activities.PlayerActivity;
+import com.shorbgy.muzica.ui.fragments.AlbumFragment;
+import com.shorbgy.muzica.ui.fragments.SongFragment;
 
 import java.util.ArrayList;
 
@@ -77,10 +80,13 @@ public class MusicService extends Service{
             action = intent.getStringExtra("action");
         }
 
-        int deleteInt = intent.getIntExtra("delete", 0);
+        int deleteInt = 0;
+        if (intent != null) {
+            deleteInt = intent.getIntExtra("delete", 0);
+        }
         if (deleteInt == 101){
-            mediaPlayer.pause();
             stopSelf();
+            MyApp.close(getApplicationContext());
         }
         //Toast.makeText(this, action, Toast.LENGTH_SHORT).show();
 
@@ -162,7 +168,7 @@ public class MusicService extends Service{
 
     public void showNotification(int playPauseBtn){
 
-        Intent intent = new Intent(this, PlayerActivity.class);
+        Intent intent = new Intent(this, SongFragment.class);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,  intent, 0);
 
         Intent playIntent = new Intent(this, NotificationReceiver.class).setAction(ACTION_PLAY);
@@ -195,6 +201,7 @@ public class MusicService extends Service{
                 .setLargeIcon(thumb)
                 .setContentTitle(songs.get(pos).getTitle())
                 .setContentText(songs.get(pos).getArtist())
+                .setContentIntent(contentIntent)
                 .addAction(R.drawable.ic_skip_previous, "previous", prevPending)
                 .addAction(playPauseBtn, "play", playPending)
                 .addAction(R.drawable.ic_baseline_skip_next_24, "next", nextPending)

@@ -3,7 +3,9 @@ package com.shorbgy.muzica;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.os.Build;
+import android.widget.Toast;
 
 public class MyApp extends Application{
 
@@ -35,5 +37,10 @@ public class MyApp extends Application{
             manager.createNotificationChannel(channel1);
             manager.createNotificationChannel(channel2);
         }
+    }
+
+    public static void close(Context context){
+        Toast.makeText(context, "Kill", Toast.LENGTH_SHORT).show();
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 }

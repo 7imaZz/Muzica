@@ -20,7 +20,9 @@
             android:layout_height="match_parent"
             android:src="@mipmap/place_holder"
             android:scaleType="centerCrop"
-            android:contentDescription="@string/song_cover_image"/>
+            android:contentDescription="@string/song_cover_image"
+            android:clickable="true"
+            android:focusable="true" />
 
         <ImageView
             android:id="@+id/gradient_img"
@@ -107,26 +109,30 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/_40sdp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="@dimen/_5sdp">
+        android:layout_marginBottom="@dimen/_8sdp">
 
-        <ImageView
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/shuffle_img"
-            android:layout_width="@dimen/_20sdp"
-            android:layout_height="@dimen/_20sdp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:src="@drawable/ic_shuffle_off"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/_20sdp"
-            tools:ignore="ContentDescription"
+            tools:ignore="ContentDescription,RelativeOverlap"
             android:clickable="true"
             android:focusable="true"
-            android:background="?android:attr/selectableItemBackground"/>
+            app:fabCustomSize="40dp"
+            android:background="@null"
+            app:backgroundTint="@android:color/transparent"
+            android:elevation="0dp"
+            app:elevation="0dp"/>
 
 
-        <ImageView
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/prev_img"
-            android:layout_width="@dimen/_20sdp"
-            android:layout_height="@dimen/_20sdp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:src="@drawable/ic_skip_previous"
             android:layout_toStartOf="@id/play_pause_fab"
             android:layout_centerVertical="true"
@@ -134,7 +140,11 @@
             android:layout_marginEnd="@dimen/_12sdp"
             android:clickable="true"
             android:focusable="true"
-            android:background="?android:attr/selectableItemBackground"/>
+            app:fabCustomSize="40dp"
+            app:backgroundTint="@android:color/white"
+            android:elevation="0dp"
+            app:elevation="0dp"
+            />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/play_pause_fab"
@@ -148,10 +158,10 @@
             app:fabCustomSize="40dp"
             />
 
-        <ImageView
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/next_img"
-            android:layout_width="@dimen/_20sdp"
-            android:layout_height="@dimen/_20sdp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:src="@drawable/ic_baseline_skip_next_24"
             android:layout_toEndOf="@id/play_pause_fab"
             android:layout_centerVertical="true"
@@ -159,12 +169,15 @@
             android:layout_marginStart="@dimen/_12sdp"
             android:clickable="true"
             android:focusable="true"
-            android:background="?android:attr/selectableItemBackground"/>
+            app:fabCustomSize="40dp"
+            app:backgroundTint="@android:color/white"
+            android:elevation="0dp"
+            app:elevation="0dp"/>
 
-        <ImageView
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/repeat_img"
-            android:layout_width="@dimen/_20sdp"
-            android:layout_height="@dimen/_20sdp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:src="@drawable/ic_repeat_off"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
@@ -172,7 +185,10 @@
             tools:ignore="ContentDescription"
             android:clickable="true"
             android:focusable="true"
-            android:background="?android:attr/selectableItemBackground"/>
+            app:fabCustomSize="40dp"
+            app:backgroundTint="@android:color/transparent"
+            android:elevation="0dp"
+            app:elevation="0dp"/>
 
     </RelativeLayout>
 
