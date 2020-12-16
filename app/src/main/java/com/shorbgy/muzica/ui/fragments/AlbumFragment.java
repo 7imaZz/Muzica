@@ -5,7 +5,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,8 +19,8 @@ import com.shorbgy.muzica.ui.activities.MainActivity;
 import com.shorbgy.muzica.ui.adapters.AlbumAdapter;
 import com.shorbgy.muzica.viewmodels.MusicViewModel;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -29,13 +28,13 @@ import butterknife.ButterKnife;
 @SuppressLint("NonConstantResourceId")
 public class AlbumFragment extends Fragment {
 
-    private AlbumAdapter adapter;
+    public static AlbumAdapter adapter;
 
     @BindView(R.id.album_rv)
     RecyclerView albumRecyclerView;
 
     ArrayList<String> existAlbums = new ArrayList<>();
-    ArrayList<Song> albums = new ArrayList<>();
+    public static ArrayList<Song> albums = new ArrayList<>();
 
     String sortOrder;
 
@@ -56,7 +55,7 @@ public class AlbumFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         albumRecyclerView.setHasFixedSize(true);
-        adapter = new AlbumAdapter(albums, requireContext());
+        adapter = new AlbumAdapter(albums, new WeakReference<>(requireContext()));
         albumRecyclerView.setAdapter(adapter);
 
         MusicViewModel musicViewModel = new ViewModelProvider(requireActivity()).get(MusicViewModel.class);
@@ -77,12 +76,5 @@ public class AlbumFragment extends Fragment {
             adapter.setSongs(albums);
             adapter.notifyDataSetChanged();
         });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Objects.requireNonNull(((AppCompatActivity)
-                Objects.requireNonNull(getActivity())).getSupportActionBar()).hide();
     }
 }

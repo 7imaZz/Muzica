@@ -2,17 +2,19 @@ package com.shorbgy.muzica.ui.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.palette.graphics.Palette;
 import android.annotation.SuppressLint;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -20,28 +22,31 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
+import com.shorbgy.muzica.services.MusicService;
+import com.shorbgy.muzica.services.ServiceCallbacks;
 
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import static com.shorbgy.muzica.MyApp.ACTION_NEXT;
+import static com.shorbgy.muzica.MyApp.ACTION_PLAY;
+import static com.shorbgy.muzica.MyApp.ACTION_PREVIOUS;
 
 @SuppressLint("NonConstantResourceId")
-public class PlayerActivity extends AppCompatActivity {
+public class PlayerActivity extends AppCompatActivity implements ServiceConnection, ServiceCallbacks{
 
     public static final String MY_PREFS_NAME = "MyPrefsFile";
     public static final String SHUFFLE = "shuffle";
     public static final String REPEAT = "repeat";
 
-
-    @BindView(R.id.back_img) ImageView backImageView;
-    @BindView(R.id.menu_img) ImageView menuImageView;
     @BindView(R.id.song_cover_img_playing) ImageView songCoverImageView;
     @BindView(R.id.shuffle_img) ImageView shuffleImageView;
     @BindView(R.id.prev_img) ImageView previousSongImageView;
@@ -55,7 +60,6 @@ public class PlayerActivity extends AppCompatActivity {
     @BindView(R.id.play_pause_fab) FloatingActionButton playPauseFab;
 
     private Song currentSong;
-    private static MediaPlayer mediaPlayer;
 
     private final Handler handler = new Handler(Looper.getMainLooper());
     private ArrayList<Song> songs = new ArrayList<>();
@@ -65,6 +69,9 @@ public class PlayerActivity extends AppCompatActivity {
     private boolean isRepeatOn = false;
 
     private SharedPreferences.Editor editor;
+
+    private MusicService musicService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,9 +94,11 @@ public class PlayerActivity extends AppCompatActivity {
         pos = getIntent().getIntExtra("pos", -1);
         currentSong = songs.get(pos);
 
-        setupCoverImage();
-        setupSongsInfo();
-        setupSeekBar();
+        Intent musicServiceIntent = new Intent(this, MusicService.class);
+        musicServiceIntent.putExtra("songs", songs);
+        musicServiceIntent.putExtra("pos", pos);
+        startService(musicServiceIntent);
+        bindService(musicServiceIntent, this, BIND_AUTO_CREATE);
 
         playPauseFab.setOnClickListener(v -> playPause());
         nextSongImageView.setOnClickListener(v -> playNextSong());
@@ -106,35 +115,37 @@ public class PlayerActivity extends AppCompatActivity {
             checkRepeat();
             editor.apply();
         });
+
+
     }
 
-    private void setupSongsInfo(){
+    private void setupSongsInfo() {
+
+        if (musicService.getMediaPlayer()!=null){
+            musicService.getMediaPlayer().stop();
+            musicService.getMediaPlayer().release();
+            musicService.setMediaPlayer(null);
+        }
+
+        musicService.setSongs(songs);
+        musicService.playMedia(pos);
+
         songTitleTextView.setText(currentSong.getTitle());
-        if (currentSong.getArtist().equals("<unknown>")){
+        if (currentSong.getArtist().equals("<unknown>")) {
             currentSong.setArtist("Unknown");
         }
         artistTextView.setText(currentSong.getArtist());
 
-        Uri uri = Uri.parse(currentSong.getPath());
-
         long millis = Long.parseLong(currentSong.getDuration());
 
-        String duration = formattedDuration(millis/1000);
+        String duration = formattedDuration(millis / 1000);
         endDurationTextView.setText(duration);
         playPauseFab.setImageResource(R.drawable.ic_pause);
+        musicService.showNotification(R.drawable.ic_pause);
 
-        if(mediaPlayer != null){
-            mediaPlayer.stop();
-            mediaPlayer.release();
-        }
-        mediaPlayer = MediaPlayer.create(this, uri);
-        mediaPlayer.start();
-
-        songSeekBar.setMax(mediaPlayer.getDuration()/1000);
-
-        mediaPlayer.setOnCompletionListener(mp -> playNextSong());
+        songSeekBar.setMax(Integer.parseInt(currentSong.getDuration())/ 1000);
+        musicService.getMediaPlayer().setOnCompletionListener(mp -> playNextSong());
     }
-
     private void setupCoverImage(){
         new Thread(() -> {
             byte[] songCover = getSongCover(currentSong.getPath());
@@ -205,8 +216,8 @@ public class PlayerActivity extends AppCompatActivity {
         songSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (mediaPlayer != null && fromUser){
-                    mediaPlayer.seekTo(progress*1000);
+                if (musicService.getMediaPlayer() != null && fromUser){
+                    musicService.seekTo(progress*1000);
                 }
             }
 
@@ -224,8 +235,15 @@ public class PlayerActivity extends AppCompatActivity {
         PlayerActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if (mediaPlayer != null) {
-                    int currentPosition = mediaPlayer.getCurrentPosition()/1000;
+                int currentPosition;
+                if (musicService!= null) {
+                    try {
+                        currentPosition = musicService.getCurrentPosition()/1000;
+                    }catch (IllegalStateException e){
+                        //musicService.getMediaPlayer().reset();
+                        currentPosition = musicService.getCurrentPosition()/1000;
+                    }
+
                     songSeekBar.setProgress(currentPosition);
                     currentDurationTextView.setText(formattedDuration(currentPosition));
                 }
@@ -235,17 +253,20 @@ public class PlayerActivity extends AppCompatActivity {
         });
     }
 
-    private void playPause(){
-        if (mediaPlayer.isPlaying()){
-            mediaPlayer.pause();
+    public void playPause(){
+
+        if (musicService.isPlaying()){
+            musicService.pause();
             playPauseFab.setImageResource(R.drawable.ic_play_arrow);
+            musicService.showNotification(R.drawable.ic_play_arrow);
         }else {
-            mediaPlayer.start();
+            musicService.start();
             playPauseFab.setImageResource(R.drawable.ic_pause);
+            musicService.showNotification(R.drawable.ic_pause);
         }
     }
 
-    private void playNextSong(){
+    public void playNextSong(){
         if (!isRepeatOn) {
             if (!isShuffleOn) {
                 if (pos == songs.size() - 1) {
@@ -254,16 +275,16 @@ public class PlayerActivity extends AppCompatActivity {
                     pos++;
                 }
             }else {
-                pos = new Random().nextInt(songs.size()-1);
+                pos = new Random().nextInt(songs.size());
             }
         }
         currentSong = songs.get(pos);
+        musicService.setPos(pos);
         setupCoverImage();
-        setupSongsInfo();
         setupSongsInfo();
     }
 
-    private void playPreviousSong(){
+    public void playPreviousSong(){
         if (!isRepeatOn) {
             if (!isShuffleOn) {
                 if (pos == 0) {
@@ -272,12 +293,12 @@ public class PlayerActivity extends AppCompatActivity {
                     pos--;
                 }
             }else {
-                pos = new Random().nextInt(songs.size()-1);
+                pos = new Random().nextInt(songs.size());
             }
         }
         currentSong = songs.get(pos);
+        musicService.setPos(pos);
         setupCoverImage();
-        setupSongsInfo();
         setupSongsInfo();
     }
 
@@ -372,6 +393,59 @@ public class PlayerActivity extends AppCompatActivity {
             repeatImageView.setImageResource(R.drawable.ic_repeat);
         }else {
             repeatImageView.setImageResource(R.drawable.ic_repeat_off);
+        }
+    }
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+
+        MusicService.MyBinder myBinder = (MusicService.MyBinder) service;
+        musicService = myBinder.getMusicService();
+        musicService.setServiceCallbacks(this);
+
+        if (musicService != null){
+            musicService.setPos(pos);
+            musicService.setSongs(songs);
+        }
+        setupCoverImage();
+        setupSongsInfo();
+        setupSeekBar();
+
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        musicService = null;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //musicService.setServiceCallbacks(null);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unbindService(this);
+    }
+
+    @Override
+    public void takeAction(String action) {
+
+        musicService.setSongs(songs);
+        musicService.setPos(pos);
+
+        switch (action){
+            case ACTION_PLAY:
+                playPause();
+                break;
+            case ACTION_NEXT:
+                playNextSong();
+                break;
+            case ACTION_PREVIOUS:
+                playPreviousSong();
+                break;
         }
     }
 }

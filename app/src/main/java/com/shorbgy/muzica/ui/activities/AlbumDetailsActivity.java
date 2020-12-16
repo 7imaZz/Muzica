@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
@@ -15,14 +16,16 @@ import com.bumptech.glide.Glide;
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
 import com.shorbgy.muzica.ui.adapters.SongsAdapter;
+import com.shorbgy.muzica.ui.adapters.onItemClickListener;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 @SuppressLint("NonConstantResourceId")
-public class AlbumDetailsActivity extends AppCompatActivity {
+public class AlbumDetailsActivity extends AppCompatActivity implements onItemClickListener {
 
 
     @BindView(R.id.songs_det_rv) RecyclerView songsRecyclerView;
@@ -54,7 +57,7 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         songsRecyclerView.setHasFixedSize(true);
         songsRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
-        SongsAdapter adapter = new SongsAdapter(this, albumSongs);
+        SongsAdapter adapter = new SongsAdapter(new WeakReference<>(this), albumSongs, this);
         songsRecyclerView.setAdapter(adapter);
     }
 
@@ -71,4 +74,11 @@ public class AlbumDetailsActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void setOnItemClickListener(int pos) {
+        Intent intent = new Intent(this, PlayerActivity.class);
+        intent.putExtra("songs", albumSongs);
+        intent.putExtra("pos", pos);
+        startActivity(intent);
+    }
 }

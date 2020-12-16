@@ -21,6 +21,7 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
 import com.shorbgy.muzica.ui.adapters.MyFragmentStateAdapter;
+import com.shorbgy.muzica.ui.fragments.AlbumFragment;
 import com.shorbgy.muzica.ui.fragments.SongFragment;
 
 import java.util.ArrayList;
@@ -119,18 +120,21 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 editor.putString(SORT, BY_NAME);
                 editor.apply();
                 SongFragment.mySongs.clear();
+                AlbumFragment.albums.clear();
                 this.recreate();
                 break;
             case R.id.by_date_menu:
                 editor.putString(SORT, BY_DATE);
                 editor.apply();
                 SongFragment.mySongs.clear();
+                AlbumFragment.albums.clear();
                 this.recreate();
                 break;
             case R.id.by_size_menu:
                 editor.putString(SORT, BY_SIZE);
                 editor.apply();
                 SongFragment.mySongs.clear();
+                AlbumFragment.albums.clear();
                 this.recreate();
                 break;
         }
@@ -151,12 +155,30 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 filteredSongs.add(song);
             }
         }
-        SongFragment.adapter.setSongs(filteredSongs);
-        SongFragment.adapter.notifyDataSetChanged();
-        return false;
+        if (SongFragment.adapter!=null) {
+            SongFragment.adapter.setSongs(filteredSongs);
+            SongFragment.adapter.notifyDataSetChanged();
+        }
+
+        ArrayList<Song> filteredAlbums = new ArrayList<>();
+        for (Song album: AlbumFragment.albums){
+            if (album.getAlbum().toLowerCase().contains(newText.toLowerCase())){
+                filteredAlbums.add(album);
+            }
+        }
+        AlbumFragment.adapter.setSongs(filteredAlbums);
+        AlbumFragment.adapter.notifyDataSetChanged();
+        return true;
     }
 
     public String getSortOrder() {
         return sortOrder;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SongFragment.mySongs.clear();
+        AlbumFragment.albums.clear();
     }
 }

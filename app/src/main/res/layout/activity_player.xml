@@ -8,48 +8,11 @@
     android:background="@color/p_dark"
     tools:context=".ui.activities.PlayerActivity">
 
-    <RelativeLayout
-        android:id="@+id/top"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_35sdp"
-        android:background="@android:color/transparent">
-
-        <ImageView
-            android:id="@+id/back_img"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
-            android:src="@drawable/chevron_left"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            tools:ignore="ContentDescription" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/now_playing"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:textColor="@color/white"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textStyle="bold"
-            tools:ignore="RelativeOverlap" />
-
-        <ImageView
-            android:id="@+id/menu_img"
-            android:layout_width="@dimen/_20sdp"
-            android:layout_height="@dimen/_20sdp"
-            android:src="@drawable/ic_menu"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            tools:ignore="ContentDescription"
-            android:layout_marginEnd="@dimen/_10sdp"/>
-    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/card"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_320sdp"
-        android:layout_below="@id/top">
+        android:layout_height="@dimen/_320sdp">
 
         <ImageView
             android:id="@+id/song_cover_img_playing"

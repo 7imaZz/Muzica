@@ -2,15 +2,13 @@ package com.shorbgy.muzica.ui.fragments;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
-import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -26,20 +24,21 @@ import com.google.android.material.snackbar.Snackbar;
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
 import com.shorbgy.muzica.ui.activities.MainActivity;
+import com.shorbgy.muzica.ui.activities.PlayerActivity;
 import com.shorbgy.muzica.ui.adapters.SongsAdapter;
+import com.shorbgy.muzica.ui.adapters.onItemClickListener;
 import com.shorbgy.muzica.ui.utils.SwipeHelper;
 import com.shorbgy.muzica.viewmodels.MusicViewModel;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 @SuppressLint("NonConstantResourceId")
-public class SongFragment extends Fragment {
+public class SongFragment extends Fragment implements onItemClickListener {
 
     public static SongsAdapter adapter;
 
@@ -67,7 +66,7 @@ public class SongFragment extends Fragment {
         songsRecyclerView.setHasFixedSize(true);
         songsRecyclerView.addItemDecoration(new DividerItemDecoration(requireContext(),
                 DividerItemDecoration.VERTICAL));
-        adapter = new SongsAdapter(requireContext(), mySongs);
+        adapter = new SongsAdapter(new WeakReference<>(requireContext()), mySongs, this);
         songsRecyclerView.setAdapter(adapter);
 
         MusicViewModel musicViewModel = new ViewModelProvider(requireActivity()).get(MusicViewModel.class);
@@ -113,9 +112,10 @@ public class SongFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        Objects.requireNonNull(((AppCompatActivity)
-                Objects.requireNonNull(getActivity())).getSupportActionBar()).show();
+    public void setOnItemClickListener(int pos) {
+        Intent intent = new Intent(requireContext(), PlayerActivity.class);
+        intent.putExtra("songs", mySongs);
+        intent.putExtra("pos", pos);
+        requireContext().startActivity(intent);
     }
 }

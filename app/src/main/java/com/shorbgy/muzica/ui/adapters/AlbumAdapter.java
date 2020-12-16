@@ -19,6 +19,7 @@ import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
 import com.shorbgy.muzica.ui.activities.AlbumDetailsActivity;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -37,10 +38,10 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
     }
 
     private ArrayList<Song> albums;
-    private final Context context;
+    private final WeakReference<Context> context;
     private ArrayList<Song> allSongs = new ArrayList<>();
 
-    public AlbumAdapter(ArrayList<Song> songs, Context context) {
+    public AlbumAdapter(ArrayList<Song> songs, WeakReference<Context> context) {
         this.albums = songs;
         this.context = context;
     }
@@ -67,16 +68,16 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
 
         holder.albumTitle.setText(albums.get(position).getAlbum());
 
-        Glide.with(context)
+        Glide.with(context.get())
                 .load(getSongCover(albums.get(position).getPath()))
                 .placeholder(R.mipmap.place_holder)
                 .into(holder.albumCoverImageView);
 
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, AlbumDetailsActivity.class);
+            Intent intent = new Intent(context.get(), AlbumDetailsActivity.class);
             intent.putExtra("songs", allSongs);
             intent.putExtra("current", albums.get(position));
-            context.startActivity(intent);
+            context.get().startActivity(intent);
         });
     }
 

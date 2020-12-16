@@ -19,9 +19,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.shorbgy.muzica.R;
 import com.shorbgy.muzica.pojo.Song;
-import com.shorbgy.muzica.ui.activities.MainActivity;
 import com.shorbgy.muzica.ui.activities.PlayerActivity;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 import butterknife.BindView;
@@ -43,11 +43,13 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongsViewHol
     }
 
     private ArrayList<Song> songs;
-    private final Context context;
+    private final WeakReference<Context> context;
+    private onItemClickListener onItemClickListener;
 
-    public SongsAdapter(Context context, ArrayList<Song> songs) {
+    public SongsAdapter(WeakReference<Context> context, ArrayList<Song> songs, onItemClickListener onItemClickListener) {
         this.songs = songs;
         this.context = context;
+        this.onItemClickListener = onItemClickListener;
     }
 
     public void setSongs(ArrayList<Song> songs) {
@@ -71,26 +73,21 @@ public class SongsAdapter extends RecyclerView.Adapter<SongsAdapter.SongsViewHol
         holder.durationTextView.setText(formattedDuration(
                 Integer.parseInt(songs.get(position).getDuration())/1000));
 
-        holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, PlayerActivity.class);
-            intent.putExtra("songs", songs);
-            intent.putExtra("pos", position);
-            context.startActivity(intent);
-        });
+        holder.itemView.setOnClickListener(v -> onItemClickListener.setOnItemClickListener(position));
 
         new Thread(() -> {
 
             Bitmap songCover = getSongCover(songs.get(position).getPath());
 
             if (songCover != null){
-                ((Activity)context).runOnUiThread(() ->
-                        Glide.with(context)
+                ((Activity)context.get()).runOnUiThread(() ->
+                        Glide.with(context.get())
                                 .load(songCover)
                                 .placeholder(R.mipmap.place_holder)
                                 .into(holder.songCoverImageView));
             }else {
-                ((Activity)context).runOnUiThread(() ->
-                        Glide.with(context)
+                ((Activity)context.get()).runOnUiThread(() ->
+                        Glide.with(context.get())
                                 .load(R.mipmap.place_holder)
                                 .into(holder.songCoverImageView));
             }
